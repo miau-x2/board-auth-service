@@ -28,6 +28,7 @@ public class RedisEmailAuthenticationRepository implements EmailAuthenticationRe
             return new SaveOtpResult.Signup.Cooldown(retryAfterSeconds);
         }
         var otp = supplier.get();
+        log.info("otp 발급");
         var otpKey = signupOtpKey(email);
         try {
             stringRedisTemplate.opsForValue().set(otpKey, otp, emailAuthenticationProperties.email().otp().validity());
@@ -58,7 +59,10 @@ public class RedisEmailAuthenticationRepository implements EmailAuthenticationRe
 
     @Override
     public String useSignupToken(String token) {
-        return "";
+        var signupTokenKey = signupTokenKey(token);
+        var email = stringRedisTemplate.opsForValue().getAndDelete(signupTokenKey);
+        log.info("이메일 인증 토큰 사용. 토큰: {}, 이메일: {}", token, email);
+        return email;
     }
 
     @Override

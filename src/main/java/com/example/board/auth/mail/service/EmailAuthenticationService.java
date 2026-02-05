@@ -57,6 +57,7 @@ public class EmailAuthenticationService {
         emailAuthenticationRepository.deleteOtp(command.email());
         // 10분간 유효한 회원 가입 토큰 발행
         var token = tokenGenerator.generate();
+        log.info("이메일 인증 토큰 발급: {}", token);
         // 토큰 저장
         emailAuthenticationRepository.saveSignupToken(token, command.email());
         return new EmailAuthenticationResult.VerifyOtp.Success(token);

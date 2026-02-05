@@ -1,19 +1,81 @@
 package com.example.board.auth.credential.service.impl;
 
+import com.example.board.auth.commons.exception.UnhandledDataIntegrityViolationException;
+import com.example.board.auth.commons.utils.DatabaseConstraintName;
+import com.example.board.auth.commons.utils.EmailDomainPolicy;
+import com.example.board.auth.commons.utils.ExceptionUtils;
+import com.example.board.auth.credential.exception.MemberActivationException;
+import com.example.board.auth.credential.exception.MemberCredentialNotFoundException;
 import com.example.board.auth.credential.repository.MemberCredentialRepository;
 import com.example.board.auth.credential.service.MemberService;
-import com.example.board.auth.credential.service.command.MemberSignupCommand;
-import com.example.board.auth.credential.service.result.SignupResult;
+import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
+import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
+import com.example.board.auth.credential.service.result.ActivateCredentialResult;
+import com.example.board.auth.credential.service.result.CreateCredentialResult;
+import com.example.board.auth.credential.tx.MemberCredentialTxWriter;
+import com.example.board.auth.mail.repository.EmailAuthenticationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final MemberCredentialRepository memberCredentialRepository;
+    private final EmailAuthenticationRepository emailAuthenticationRepository;
+    private final MemberCredentialTxWriter memberCredentialTxWriter;
 
     @Override
-    public SignupResult signup(MemberSignupCommand command) {
-        return null;
+    public CreateCredentialResult createCredential(MemberCredentialCreateCommand command) {
+        // 이메일 도메인 제약 조건 검증
+        if(EmailDomainPolicy.isDomainAllowed(command.email())) {
+            return new CreateCredentialResult.EmailDomainNotAllowed();
+        }
+        // 이메일 인증 토큰 검증
+        var storedEmail = emailAuthenticationRepository.useSignupToken(command.token());
+        if(storedEmail == null || storedEmail.isBlank()) {
+            return new CreateCredentialResult.TokenExpired();
+        }
+        if(!storedEmail.equals(command.email())) {
+            return new CreateCredentialResult.TokenInvalid();
+        }
+        try {
+            var id = memberCredentialTxWriter.save(new MemberCredentialSaveCommand(command.username(), command.password(), command.email()));
+            return new CreateCredentialResult.Success(id);
+        } catch (DataIntegrityViolationException e) {
+            var constraintName = ExceptionUtils.findConstraintName(e);
+            if(DatabaseConstraintName.MemberCredential.EMAIL.equals(constraintName)) {
+                return new CreateCredentialResult.EmailAlreadyExists();
+            }
+            if(DatabaseConstraintName.MemberCredential.USERNAME.equals(constraintName)) {
+                return new CreateCredentialResult.UsernameAlreadyExists();
+            }
+            throw new UnhandledDataIntegrityViolationException(e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public ActivateCredentialResult activateCredential(Long id) {
+        return memberCredentialRepository.findById(id)
+                .<ActivateCredentialResult>map(credential -> {
+                    try {
+                        credential.activate();
+                        log.info("회원 자격 증명 활성화 성공: {}", id);
+                        return new ActivateCredentialResult.Success();
+                    } catch (MemberActivationException _) {
+                        return new ActivateCredentialResult.Failure();
+                    }
+                }).orElseGet(ActivateCredentialResult.NotFound::new);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCredential(Long id) {
+        memberCredentialRepository.deleteById(id);
+        log.info("[SOFT] 회원 자격 증명 삭제: {}", id);
     }
 }

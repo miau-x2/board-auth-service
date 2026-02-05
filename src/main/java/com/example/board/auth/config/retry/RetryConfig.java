@@ -1,5 +1,6 @@
 package com.example.board.auth.config.retry;
 
+import com.example.board.auth.commons.exception.RetryableRemoteException;
 import com.example.board.auth.mail.exception.MailSendFailedException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,22 @@ public class RetryConfig {
                 .jitter(Duration.ofMillis(50))
                 .timeout(Duration.ofSeconds(2))
                 .includes(MailSendFailedException.class)
+                .build();
+        var retryTemplate = new RetryTemplate(retryPolicy);
+        retryTemplate.setRetryListener(retryListener);
+        return retryTemplate;
+    }
+
+    @Bean
+    public RetryTemplate memberApiRetryTemplate(@Qualifier("memberApiRetryListener") RetryListener retryListener) {
+        var retryPolicy = RetryPolicy.builder()
+                .maxRetries(3)
+                .delay(Duration.ofMillis(100))
+                .multiplier(2)
+                .maxDelay(Duration.ofSeconds(500))
+                .jitter(Duration.ofMillis(20))
+                .timeout(Duration.ofSeconds(1))
+                .includes(RetryableRemoteException.class)
                 .build();
         var retryTemplate = new RetryTemplate(retryPolicy);
         retryTemplate.setRetryListener(retryListener);

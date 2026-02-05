@@ -14,5 +14,8 @@ public interface MemberApiClient {
     ApiResponse<Void> createProfile(@PathVariable("member-id") Long id, @Valid @RequestBody MemberProfileCreateRequest request);
 
     @DeleteMapping("/{member-id}/profile")
-    ApiResponse<Void> deleteProfile(@PathVariable("member-id") Long id);
+    ApiResponse<Void> softDeleteProfile(@PathVariable("member-id") Long id);
+
+    @DeleteMapping("/internal/{member-id}/profile")
+    ApiResponse<Void> hardDeleteProfile(@PathVariable("member-id") Long id);
 }
