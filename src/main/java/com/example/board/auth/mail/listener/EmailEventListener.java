@@ -1,6 +1,6 @@
 package com.example.board.auth.mail.listener;
 
-import com.example.board.auth.mail.dto.MailContext;
+import com.example.board.auth.mail.EmailAuthenticationProperties;
 import com.example.board.auth.mail.event.EmailSendEvent;
 import com.example.board.auth.mail.result.SendEmailResult;
 import com.example.board.auth.mail.service.EmailService;
@@ -14,15 +14,16 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EmailEventListener {
-    private static final int OTP_EXPIRES_IN_MINUTES = 5;
     private final EmailService emailService;
+    private final EmailAuthenticationProperties authenticationProperties;
 
     @Async("mailTaskExecutor")
     @EventListener
     public void handleEmailSendEvent(EmailSendEvent event) {
         log.info("메일 발송 이벤트 수신. email={}", event.email());
         try {
-            var result = emailService.sendEmail(buildMailContext(event.email(), event.otp()));
+            var result = emailService.sendEmail(
+                    event.emailType(), event.email(), event.otp(), authenticationProperties.email().otp().validity().toMinutes());
             switch (result) {
                 case SendEmailResult.Success _ ->
                         log.info("메일 발송 완료. email={}", event.email());
@@ -36,9 +37,5 @@ public class EmailEventListener {
         } catch (Exception e) {
             log.error("메일 발송 중 예외 발생. email={}", event.email(), e);
         }
-    }
-
-    private MailContext buildMailContext(String email, String otp) {
-        return new MailContext(email,"회원가입 이메일 인증번호 안내", otp, OTP_EXPIRES_IN_MINUTES);
     }
 }

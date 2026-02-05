@@ -37,10 +37,10 @@ public class ThrottledEmailSender implements EmailSender {
     }
 
     @ConcurrencyLimit(value = 20, policy = ConcurrencyLimit.ThrottlePolicy.BLOCK)
-    public void send(MailContext mailContext, String text) {
+    public void send(MailContext mailContext) {
         try {
             retryTemplate.execute(() -> {
-                process(mailContext, text);
+                process(mailContext);
                 return null;
             });
         } catch (RetryException e) {
@@ -48,7 +48,7 @@ public class ThrottledEmailSender implements EmailSender {
         }
     }
 
-    private void process(MailContext mailContext, String text) {
+    private void process(MailContext mailContext) {
         var message = javaMailSender.createMimeMessage();
         try {
             var helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
@@ -60,7 +60,7 @@ public class ThrottledEmailSender implements EmailSender {
             }
             helper.setTo(mailContext.to());
             helper.setSubject(mailContext.subject());
-            helper.setText(text, true);
+            helper.setText(mailContext.text(), mailContext.hasHtml());
             javaMailSender.send(message);
         } catch (MessagingException | MailParseException | MailPreparationException e) {
             // 재시도 X

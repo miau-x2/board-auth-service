@@ -1,6 +1,7 @@
 package com.example.board.auth.mail.service;
 
 import com.example.board.auth.commons.utils.EmailDomainPolicy;
+import com.example.board.auth.mail.AuthEmailType;
 import com.example.board.auth.mail.event.EmailSendEvent;
 import com.example.board.auth.mail.repository.EmailAuthenticationRepository;
 import com.example.board.auth.mail.result.EmailAuthenticationResult;
@@ -23,7 +24,7 @@ public class EmailAuthenticationService {
     private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public EmailAuthenticationResult.SendOtp sendOtp(EmailSendCommand command) {
+    public EmailAuthenticationResult.SendOtp sendOtp(AuthEmailType authEmailType, EmailSendCommand command) {
         if(!EmailDomainPolicy.isDomainAllowed(command.email())) {
             return new EmailAuthenticationResult.SendOtp.EmailDomainNotAllowed();
         }
@@ -32,7 +33,7 @@ public class EmailAuthenticationService {
         return switch (result) {
             case SaveOtpResult.Signup.Success(var otp) -> {
                 // 메일 발송 이벤트 발행
-                eventPublisher.publishEvent(new EmailSendEvent(command.email(), otp));
+                eventPublisher.publishEvent(new EmailSendEvent(authEmailType, command.email(), otp));
                 yield new EmailAuthenticationResult.SendOtp.Success();
             }
             case SaveOtpResult.Signup.Cooldown(var retryAfterSeconds) -> {

@@ -46,12 +46,11 @@ class EmailSenderTest {
     @Test
     @DisplayName("메일 전송 - 성공")
     void should_SendMimeMessage_When_InputIsValid() {
-        var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
-        var text = "내용";
+        var mailContext = new MailContext("user@example.com", "제목", "123456", true);
         var message = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(message);
 
-        emailSender.send(mailContext, text);
+        emailSender.send(mailContext);
 
         verify(javaMailSender).createMimeMessage();
         verify(javaMailSender).send(message);
@@ -60,8 +59,7 @@ class EmailSenderTest {
     @Test
     @DisplayName("메일 전송 - 성공(재시도 후 성공)")
     void should_Succeed_AfterRetries_When_TransientErrorOccurs() {
-        var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
-        var text = "내용";
+        var mailContext = new MailContext("user@example.com", "제목", "123456", true);
         var message = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(message);
         doThrow(MailSendException.class)
@@ -70,7 +68,7 @@ class EmailSenderTest {
                 .when(javaMailSender)
                 .send(message);
 
-        emailSender.send(mailContext, text);
+        emailSender.send(mailContext);
 
         verify(javaMailSender, times(3)).createMimeMessage();
         verify(javaMailSender, times(3)).send(message);
@@ -79,15 +77,14 @@ class EmailSenderTest {
     @Test
     @DisplayName("메일 전송 - 실패(파싱 에러)")
     void should_ThrowMailSendFailedException_When_ParseExceptionOccurs() {
-        var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
-        var text = "내용";
+        var mailContext = new MailContext("user@example.com", "제목", "123456", true);
         var message = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(message);
         doThrow(MailParseException.class)
                 .when(javaMailSender)
                 .send(message);
 
-        assertThatThrownBy(() -> emailSender.send(mailContext, text))
+        assertThatThrownBy(() -> emailSender.send(mailContext))
                         .isExactlyInstanceOf(MailSendFailedException.class);
 
         verify(javaMailSender).createMimeMessage();
@@ -97,15 +94,14 @@ class EmailSenderTest {
     @Test
     @DisplayName("메일 전송 - 실패(준비 에러)")
     void should_ThrowMailSendFailedException_When_PreparationExceptionOccurs() {
-        var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
-        var text = "내용";
+        var mailContext = new MailContext("user@example.com", "제목", "123456", true);
         var message = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(message);
         doThrow(MailPreparationException.class)
                 .when(javaMailSender)
                 .send(message);
 
-        assertThatThrownBy(() -> emailSender.send(mailContext, text))
+        assertThatThrownBy(() -> emailSender.send(mailContext))
                 .isExactlyInstanceOf(MailSendFailedException.class);
 
         verify(javaMailSender).createMimeMessage();
@@ -115,15 +111,14 @@ class EmailSenderTest {
     @Test
     @DisplayName("메일 전송 - 실패(인증 에러)")
     void should_ThrowMailSendFailedException_When_AuthenticationExceptionOccurs() {
-        var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
-        var text = "내용";
+        var mailContext = new MailContext("user@example.com", "제목", "123456", true);
         var message = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(message);
         doThrow(MailAuthenticationException.class)
                 .when(javaMailSender)
                 .send(message);
 
-        assertThatThrownBy(() -> emailSender.send(mailContext, text))
+        assertThatThrownBy(() -> emailSender.send(mailContext))
                 .isExactlyInstanceOf(MailSendFailedException.class);
 
         verify(javaMailSender).createMimeMessage();
@@ -133,15 +128,14 @@ class EmailSenderTest {
     @Test
     @DisplayName("메일 전송 - 실패(재시도 횟수 소진)")
     void should_ThrowMailSendFailedException_When_RetryExhausted() {
-        var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
-        var text = "내용";
+        var mailContext = new MailContext("user@example.com", "제목", "123456", true);
         var message = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(message);
         doThrow(MailSendException.class)
                 .when(javaMailSender)
                 .send(message);
 
-        assertThatThrownBy(() -> emailSender.send(mailContext, text))
+        assertThatThrownBy(() -> emailSender.send(mailContext))
                 .isExactlyInstanceOf(MailSendFailedException.class);
 
         verify(javaMailSender, times(3)).createMimeMessage();

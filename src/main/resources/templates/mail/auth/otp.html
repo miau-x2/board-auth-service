@@ -7,9 +7,13 @@
 <body style="margin:0;padding:0;background:#f6f7fb;">
 <div style="max-width:560px;margin:0 auto;padding:24px;">
     <div style="background:#ffffff;border-radius:12px;padding:28px;border:1px solid #e9ecf3;">
-        <h2 style="margin:0 0 12px 0;">회원가입 이메일 인증번호 안내</h2>
+        <h2 style="margin:0 0 12px 0;"
+            th:text="${subject}">
+            회원가입 이메일 인증번호 안내
+        </h2>
 
-        <p style="margin:0 0 18px 0;line-height:1.6;color:black;">
+        <p style="margin:0 0 18px 0;line-height:1.6;color:black;"
+           th:text="${description}">
             회원가입을 위해 이메일 인증을 진행합니다.
         </p>
 
