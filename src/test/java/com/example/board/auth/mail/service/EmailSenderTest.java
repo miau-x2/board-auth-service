@@ -45,7 +45,7 @@ class EmailSenderTest {
 
     @Test
     @DisplayName("메일 전송 - 성공")
-    void send_success() {
+    void should_SendMimeMessage_When_InputIsValid() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "내용";
         var message = mock(MimeMessage.class);
@@ -58,8 +58,8 @@ class EmailSenderTest {
     }
 
     @Test
-    @DisplayName("메일 전송 - 성공(째시도 가능 예외)")
-    void send_success_when_throw_mail_send_failed_exception() {
+    @DisplayName("메일 전송 - 성공(재시도 후 성공)")
+    void should_Succeed_AfterRetries_When_TransientErrorOccurs() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "내용";
         var message = mock(MimeMessage.class);
@@ -77,8 +77,8 @@ class EmailSenderTest {
     }
 
     @Test
-    @DisplayName("메일 전송 - 실패(재시도 불가능 예외 1)")
-    void send_fail_when_throw_mail_parse_exception() {
+    @DisplayName("메일 전송 - 실패(파싱 에러)")
+    void should_ThrowMailSendFailedException_When_ParseExceptionOccurs() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "내용";
         var message = mock(MimeMessage.class);
@@ -95,8 +95,8 @@ class EmailSenderTest {
     }
 
     @Test
-    @DisplayName("메일 전송 - 실패(재시도 불가능 예외 2)")
-    void send_fail_when_throw_mail_preparation_exception() {
+    @DisplayName("메일 전송 - 실패(준비 에러)")
+    void should_ThrowMailSendFailedException_When_PreparationExceptionOccurs() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "내용";
         var message = mock(MimeMessage.class);
@@ -113,8 +113,8 @@ class EmailSenderTest {
     }
 
     @Test
-    @DisplayName("메일 전송 - 실패(재시도 불가능 예외 3)")
-    void send_fail_when_throw_mail_authentication_exception() {
+    @DisplayName("메일 전송 - 실패(인증 에러)")
+    void should_ThrowMailSendFailedException_When_AuthenticationExceptionOccurs() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "내용";
         var message = mock(MimeMessage.class);
@@ -131,8 +131,8 @@ class EmailSenderTest {
     }
 
     @Test
-    @DisplayName("메일 전송 - 실패(째시도 횟수 소진)")
-    void send_fail_when_retry_exhausted() {
+    @DisplayName("메일 전송 - 실패(재시도 횟수 소진)")
+    void should_ThrowMailSendFailedException_When_RetryExhausted() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "내용";
         var message = mock(MimeMessage.class);

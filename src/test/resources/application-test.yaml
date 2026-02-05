@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  mail:
+    host: localhost
+    port: 587
+
+app:
+  authentication:
+    user:
+      password:
+        bcrypt:
+          strength: 10
+
+eureka:
+  client:
+    enabled: false

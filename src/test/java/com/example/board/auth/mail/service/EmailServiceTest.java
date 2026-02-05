@@ -28,7 +28,7 @@ class EmailServiceTest {
 
     @Test
     @DisplayName("이메일 전송 - 성공")
-    void send_email_success() {
+    void should_ReturnSuccess_When_MailSentSuccessfully() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "text";
         when(springTemplateEngine.process(anyString(), any(Context.class))).thenReturn(text);
@@ -42,8 +42,8 @@ class EmailServiceTest {
     }
 
     @Test
-    @DisplayName("이메일 전송 - 실패(템플릿 구성 실패)")
-    void send_fail_when_throw_template_engine_process_exception() {
+    @DisplayName("이메일 전송 - 실패(템플릿 처리 실패)")
+    void should_ReturnComposeFailed_When_TemplateProcessingFails() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         when(springTemplateEngine.process(anyString(), any(Context.class))).thenThrow(RuntimeException.class);
 
@@ -57,7 +57,7 @@ class EmailServiceTest {
 
     @Test
     @DisplayName("이메일 전송 - 실패(메일 서버 인증 실패)")
-    void send_fail_when_throw_mail_authentication_failed_exception() {
+    void should_ReturnAuthenticationFailed_When_MailServerAuthenticationFails() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "text";
         when(springTemplateEngine.process(anyString(), any(Context.class))).thenReturn(text);
@@ -74,7 +74,7 @@ class EmailServiceTest {
 
     @Test
     @DisplayName("이메일 전송 - 실패(메일 구성 실패)")
-    void send_fail_when_throw_mail_compose_failed_exception() {
+    void should_ReturnComposeFailed_When_MailCompositionFails() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "text";
         when(springTemplateEngine.process(anyString(), any(Context.class))).thenReturn(text);
@@ -91,7 +91,7 @@ class EmailServiceTest {
 
     @Test
     @DisplayName("이메일 전송 - 실패(메일 전송 실패)")
-    void send_fail_when_throw_mail_send_failed_exception() {
+    void should_ReturnSendFailed_When_MailSendingFails() {
         var mailContext = new MailContext("user@example.com", "제목", "123456", 5);
         var text = "text";
         when(springTemplateEngine.process(anyString(), any(Context.class))).thenReturn(text);
