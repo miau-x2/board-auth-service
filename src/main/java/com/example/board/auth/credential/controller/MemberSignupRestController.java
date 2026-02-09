@@ -72,7 +72,7 @@ public class MemberSignupRestController {
         return switch (result) {
             case EmailAvailabilityResult.Available(var message) ->
                     successResponse(MemberCredentialSuccessCode.EMAIL_AVAILABILITY_CHECKED,EmailAvailabilityResponse.available(message));
-            case EmailAvailabilityResult.UnAvailable(var message) ->
+            case EmailAvailabilityResult.Unavailable(var message) ->
                     successResponse(MemberCredentialSuccessCode.EMAIL_AVAILABILITY_CHECKED, EmailAvailabilityResponse.unavailable(message));
         };
     }

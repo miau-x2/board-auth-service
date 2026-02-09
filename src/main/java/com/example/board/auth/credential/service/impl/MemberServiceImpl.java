@@ -101,10 +101,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public EmailAvailabilityResult checkEmailAvailability(String email) {
         if(!EmailDomainPolicy.isDomainAllowed(email)) {
-            return new EmailAvailabilityResult.UnAvailable("지메일과 네이버메일만 사용할 수 있습니다.");
+            return new EmailAvailabilityResult.Unavailable("지메일과 네이버메일만 사용할 수 있습니다.");
         }
         if(memberCredentialRepository.existsByEmail(email)) {
-            return new EmailAvailabilityResult.UnAvailable("이미 사용 중인 이메일입니다.");
+            return new EmailAvailabilityResult.Unavailable("이미 사용 중인 이메일입니다.");
         }
         return new EmailAvailabilityResult.Available("사용 가능한 이메일입니다.");
     }

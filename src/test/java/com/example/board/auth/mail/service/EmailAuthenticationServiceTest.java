@@ -54,7 +54,7 @@ class EmailAuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("OTP 전송 - 실패(허용되지 않은 이메일 도메인)")
+    @DisplayName("OTP 전송 - 실패(지원하지 않는 이메일 도메인)")
     void should_ReturnEmailDomainNotAllowed_When_DomainIsNotSupported() {
         var emailType = AuthEmailType.SIGNUP;
         var command = new EmailSendCommand("user@unsupported.com");
@@ -72,7 +72,7 @@ class EmailAuthenticationServiceTest {
         var emailType = AuthEmailType.SIGNUP;
         var email = "user@gmail.com";
         var command = new EmailSendCommand(email);
-        long retryAfter = 30L;
+        var retryAfter = 30L;
         when(emailAuthenticationRepository.saveSignupOtp(eq(email), any()))
                 .thenReturn(new SaveOtpResult.Signup.Cooldown(retryAfter));
 
