@@ -40,9 +40,19 @@ public class MemberServiceImpl implements MemberService {
         if(storedEmail == null || storedEmail.isBlank()) {
             return new CreateCredentialResult.TokenExpired();
         }
+
         if(!storedEmail.equals(command.email())) {
             return new CreateCredentialResult.TokenInvalid();
         }
+
+        if(memberCredentialRepository.existsByUsername(command.username())) {
+            return new CreateCredentialResult.UsernameAlreadyExists();
+        }
+
+        if(memberCredentialRepository.existsByEmail(command.email())) {
+            return new CreateCredentialResult.EmailAlreadyExists();
+        }
+
         try {
             var id = memberCredentialTxWriter.save(new MemberCredentialSaveCommand(command.username(), command.password(), command.email()));
             return new CreateCredentialResult.Success(id);
