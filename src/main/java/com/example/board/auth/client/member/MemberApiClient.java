@@ -1,21 +1,26 @@
 package com.example.board.auth.client.member;
 
 import com.example.board.auth.commons.response.ApiResponse;
+import com.example.board.auth.credential.controller.dto.response.NicknameAvailabilityResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "member-service", contextId = "memberApiClient")
 public interface MemberApiClient {
-    @PutMapping("/{member-id}/profile")
+    @PutMapping("/api/members/{member-id}/profile")
     ApiResponse<Void> createProfile(@PathVariable("member-id") Long id, @Valid @RequestBody MemberProfileCreateRequest request);
 
-    @DeleteMapping("/{member-id}/profile")
+    @DeleteMapping("/api/members/{member-id}/profile")
     ApiResponse<Void> softDeleteProfile(@PathVariable("member-id") Long id);
 
-    @DeleteMapping("/internal/{member-id}/profile")
+    @DeleteMapping("/api/members/internal/{member-id}/profile")
     ApiResponse<Void> hardDeleteProfile(@PathVariable("member-id") Long id);
+
+    @GetMapping("/api/members/check-nickname")
+    ResponseEntity<ApiResponse<NicknameAvailabilityResponse>> checkNicknameAvailability(@RequestParam String nickname);
 }

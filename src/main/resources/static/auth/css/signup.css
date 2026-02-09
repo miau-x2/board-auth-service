@@ -1,0 +1,64 @@
+.signup-card {
+    border-radius: 1rem;
+}
+
+.field-feedback {
+    /* 동일 요소에 성공/실패 메시지 공유 + 레이아웃 점프 방지 */
+    min-height: 1.25rem;
+    margin-top: 0.35rem;
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+.field-feedback.is-invalid {
+    color: var(--bs-danger);
+}
+
+.field-feedback.is-valid {
+    color: var(--bs-success);
+}
+
+/* 입력 상태에 따라 테두리 강조 */
+.form-control.is-valid {
+    border-color: var(--bs-success);
+}
+
+.form-control.is-invalid {
+    border-color: var(--bs-danger);
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--bs-secondary);
+    line-height: 1;
+    user-select: none;
+}
+
+.password-toggle i {
+    font-size: 1.1rem;
+}
+
+.password-toggle:hover {
+    color: var(--bs-body-color);
+}
+
+/* =========================================
+   Bootstrap 기본 valid/invalid 아이콘 제거
+   - 오른쪽 체크(✓)/느낌표(!) 제거
+   - 테두리 색만 유지
+   ========================================= */
+.form-control.is-valid,
+.form-control.is-invalid {
+    background-image: none !important; /* 오른쪽 아이콘 제거 */
+    padding-right: 0.75rem !important; /* 기본 패딩으로 고정 */
+}
+
+/* 비밀번호 input은 토글 아이콘 공간을 확보해야 하므로 예외 처리 */
+#password.form-control.is-valid,
+#password.form-control.is-invalid {
+    padding-right: 3rem !important; /* 토글 아이콘 공간 */
+}

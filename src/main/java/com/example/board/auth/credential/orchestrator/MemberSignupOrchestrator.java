@@ -90,7 +90,8 @@ public class MemberSignupOrchestrator {
                 try {
                     memberApiClient.createProfile(id, new MemberProfileCreateRequest(username, nickname));
                     return new CreateProfileResult.Success();
-                } catch (FeignException.BadRequest _) {
+                } catch (FeignException.BadRequest e) {
+                    log.error("인증 서버와 회원 서버의 입력값 검증 정책 상이.", e);
                     return new CreateProfileResult.UnexpectedValidationError();
                 } catch (FeignException.Conflict e) {
                     return feignExceptions.extractErrorResponse(e)
@@ -102,6 +103,7 @@ public class MemberSignupOrchestrator {
                                 if(MemberServiceErrorCode.NICKNAME_DUPLICATE.equals(code)) {
                                     return new CreateProfileResult.NicknameDuplicate();
                                 }
+                                log.error("회원 서버에서 정의되지 않은 409 응답.", e);
                                 return new CreateProfileResult.UnexpectedConflictError();
                             })
                             .orElseGet(CreateProfileResult.UnexpectedConflictError::new);

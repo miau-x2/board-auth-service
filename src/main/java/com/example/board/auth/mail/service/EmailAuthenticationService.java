@@ -2,6 +2,7 @@ package com.example.board.auth.mail.service;
 
 import com.example.board.auth.commons.utils.EmailDomainPolicy;
 import com.example.board.auth.mail.AuthEmailType;
+import com.example.board.auth.mail.EmailAuthenticationProperties;
 import com.example.board.auth.mail.event.EmailSendEvent;
 import com.example.board.auth.mail.repository.EmailAuthenticationRepository;
 import com.example.board.auth.mail.result.EmailAuthenticationResult;
@@ -23,6 +24,7 @@ public class EmailAuthenticationService {
     private final TokenGenerator tokenGenerator;
     private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final EmailAuthenticationProperties emailAuthenticationProperties;
 
     public EmailAuthenticationResult.SendOtp sendOtp(AuthEmailType authEmailType, EmailSendCommand command) {
         if(!EmailDomainPolicy.isDomainAllowed(command.email())) {
@@ -34,10 +36,10 @@ public class EmailAuthenticationService {
             case SaveOtpResult.Signup.Success(var otp) -> {
                 // 메일 발송 이벤트 발행
                 eventPublisher.publishEvent(new EmailSendEvent(authEmailType, command.email(), otp));
-                yield new EmailAuthenticationResult.SendOtp.Success();
+                yield new EmailAuthenticationResult.SendOtp.Success(emailAuthenticationProperties.email().otp().validity().toSeconds(), emailAuthenticationProperties.email().otp().cooldown().toSeconds());
             }
             case SaveOtpResult.Signup.Cooldown(var retryAfterSeconds) -> {
-                log.error("메일 재전송 쿨다운 설정. 남은 대기시간: {}초", retryAfterSeconds);
+                log.warn("메일 재전송 쿨다운 설정. 남은 대기시간: {}초", retryAfterSeconds);
                 yield new EmailAuthenticationResult.SendOtp.TooManyRequests(retryAfterSeconds);
             }
         };

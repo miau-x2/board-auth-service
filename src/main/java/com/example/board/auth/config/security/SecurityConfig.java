@@ -22,7 +22,11 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/signup").permitAll()
+                .requestMatchers(
+                        "/auth/css/**", "/auth/js/**",
+                        "/auth/signup",
+                        "/auth/signup/**",
+                        "/auth/members/**").permitAll()
                 .anyRequest().authenticated());
         return http.build();
     }

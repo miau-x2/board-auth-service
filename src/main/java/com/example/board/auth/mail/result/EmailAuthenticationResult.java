@@ -2,7 +2,7 @@ package com.example.board.auth.mail.result;
 
 public sealed interface EmailAuthenticationResult {
     sealed interface SendOtp extends EmailAuthenticationResult {
-        record Success() implements SendOtp {}
+        record Success(long otpValiditySeconds, long cooldownSeconds) implements SendOtp {}
         record EmailDomainNotAllowed() implements SendOtp {}
         record TooManyRequests(long retryAfterSeconds) implements SendOtp {}
     }

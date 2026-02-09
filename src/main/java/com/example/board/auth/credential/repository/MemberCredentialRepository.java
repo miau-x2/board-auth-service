@@ -10,4 +10,6 @@ public interface MemberCredentialRepository extends JpaRepository<MemberCredenti
     @Modifying
     @Query(value = "DELETE FROM member_credential WHERE member_id = :memberId", nativeQuery = true)
     void physicalDeleteById(@Param("memberId") Long id);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }
