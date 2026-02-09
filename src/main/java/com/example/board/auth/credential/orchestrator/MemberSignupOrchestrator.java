@@ -166,7 +166,7 @@ public class MemberSignupOrchestrator {
               // 보상 트랜잭션이 실패 했으므로 회원 프로필 삭제 후 자격 증명 삭제 처리 할 별도의 기능 추가 필요
               throw new MemberProfileCompensationFailedException(id);
           }
-        };
+        }
     }
 
     private void compensateCredentialCreation(Long id) {

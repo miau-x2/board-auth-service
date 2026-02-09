@@ -110,7 +110,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 생성 - 실패(아이디 중복)")
-    void should_Return_UsernameAlreadyExists_When_UsernameIsDuplicated() {
+    void should_ReturnUsernameAlreadyExists_When_UsernameIsDuplicated() {
         var token = "test-token";
         var email = "test@gmail.com";
         var createCommand = new MemberCredentialCreateCommand("test", "1234", email, token);
@@ -129,7 +129,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 생성 - 실패(아이디 중복 - 아이디 유니크 제약 조건 예외)")
-    void should_Return_UsernameAlreadyExists_When_UniqueConstraintViolationException() {
+    void should_ReturnUsernameAlreadyExists_When_UniqueConstraintViolationException() {
         var token = "test-token";
         var email = "test@gmail.com";
         var createCommand = new MemberCredentialCreateCommand("test", "1234", email, token);
@@ -152,7 +152,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 생성 - 실패(이메일 중복)")
-    void should_Return_EmailAlreadyExists_When_EmailIsDuplicated() {
+    void should_ReturnEmailAlreadyExists_When_EmailIsDuplicated() {
         var token = "test-token";
         var email = "test@gmail.com";
         var createCommand = new MemberCredentialCreateCommand("test", "1234", email, token);
@@ -172,7 +172,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 생성 - 실패(아이디 중복 - 이메일 유니크 제약 조건 예외)")
-    void should_Return_EmailAlreadyExists_When_UniqueConstraintViolationException() {
+    void should_ReturnEmailAlreadyExists_When_UniqueConstraintViolationException() {
         var token = "test-token";
         var email = "test@gmail.com";
         var createCommand = new MemberCredentialCreateCommand("test", "1234", email, token);
@@ -195,7 +195,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 생성 - 실패(처리하지 않는 무결성 예외)")
-    void should_Throw_UnhandledDataIntegrityViolationException_When_DataIntegrityViolationException() {
+    void should_ThrowUnhandledDataIntegrityViolationException_When_DataIntegrityViolationException() {
         var token = "test-token";
         var email = "test@gmail.com";
         var createCommand = new MemberCredentialCreateCommand("test", "1234", email, token);
@@ -218,7 +218,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 활성화 - 성공")
-    void should_Return_Success_When_MemberCredentialStatusIsPending() {
+    void should_ReturnSuccess_When_MemberCredentialStatusIsPending() {
         var id = 1L;
         var credential = MemberCredential.createMember("test", "1234", "test@example.com");
         when(memberCredentialRepository.findById(id))
@@ -233,7 +233,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 활성화 - 실패(ACTIVE 상태)")
-    void should_Return_Success_When_MemberCredentialStatusIsNotPending() {
+    void should_ReturnFailure_When_MemberCredentialStatusIsNotPending() {
         var id = 1L;
         var credential = MemberCredential.createMember("test", "1234", "test@example.com");
         credential.activate();
@@ -249,7 +249,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 자격 증명 활성화 - 실패(존재하지 않는 회원)")
-    void should_Return_Success_When_MemberCredentialIsNotExists() {
+    void should_ReturnNotFound_When_MemberCredentialIsNotExists() {
         var id = 1L;
         when(memberCredentialRepository.findById(id))
                 .thenReturn(Optional.empty());
@@ -271,7 +271,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("사용 가능한 아이디 검증 - 사용 가능")
-    void should_Return_Available_When_UsernameIsNotExists() {
+    void should_ReturnAvailable_When_UsernameIsNotExists() {
         var username = "test-username";
         when(memberCredentialRepository.existsByUsername(username)).thenReturn(false);
 
@@ -288,7 +288,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("사용 가능한 아이디 검증 - 아이디 중복")
-    void should_Return_Unavailable_When_UsernameIsDuplicated() {
+    void should_ReturnUnavailable_When_UsernameIsDuplicated() {
         var username = "test-username";
         when(memberCredentialRepository.existsByUsername(username)).thenReturn(true);
 
@@ -305,7 +305,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("사용 가능한 이메일 검증 - 사용 가능")
-    void should_Return_Available_When_EmailIsNotExists() {
+    void should_ReturnAvailable_When_EmailIsNotExists() {
         var email = "test@gmail.com";
         when(memberCredentialRepository.existsByEmail(email)).thenReturn(false);
 
@@ -322,7 +322,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("사용 가능한 이메일 검증 - 지원하지 않는 이메일 도메인")
-    void should_Return_Unavailable_When_DomainIsNotSupported() {
+    void should_ReturnUnavailable_When_DomainIsNotSupported() {
         var email = "test-email";
 
         var actual = memberService.checkEmailAvailability(email);
@@ -338,7 +338,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("사용 가능한 이메일 검증 - 이메일 중복")
-    void should_Return_Unavailable_When_EmailIsDuplicated() {
+    void should_ReturnUnavailable_When_EmailIsDuplicated() {
         var email = "test@gmail.com";
         when(memberCredentialRepository.existsByEmail(email)).thenReturn(true);
 
