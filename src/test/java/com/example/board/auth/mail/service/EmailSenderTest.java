@@ -27,19 +27,17 @@ import static org.mockito.Mockito.*;
 class EmailSenderTest {
     @Mock
     private JavaMailSender javaMailSender;
-    private MailProperties mailProperties;
-    private RetryTemplate retryTemplate;
     private EmailSender emailSender;
 
     @BeforeEach
     void setUp() {
-        mailProperties = new MailProperties(new MailProperties.From("address", "service-name"));
+        var mailProperties = new MailProperties(new MailProperties.From("address", "service-name"));
         var retryPolicy = RetryPolicy.builder()
                 .maxRetries(2)
                 .delay(Duration.ZERO)
                 .includes(MailSendFailedException.class)
                 .build();
-        retryTemplate = new RetryTemplate(retryPolicy);
+        var retryTemplate = new RetryTemplate(retryPolicy);
         emailSender = new ThrottledEmailSender(javaMailSender, mailProperties, retryTemplate);
     }
 
