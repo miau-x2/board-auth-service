@@ -1,6 +1,6 @@
-package com.example.board.auth.token.impl;
+package com.example.board.auth.verification.token.impl;
 
-import com.example.board.auth.token.OtpGenerator;
+import com.example.board.auth.verification.token.OtpGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

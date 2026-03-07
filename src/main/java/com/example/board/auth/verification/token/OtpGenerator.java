@@ -1,4 +1,4 @@
-package com.example.board.auth.token;
+package com.example.board.auth.verification.token;
 
 public interface OtpGenerator {
     String generate();

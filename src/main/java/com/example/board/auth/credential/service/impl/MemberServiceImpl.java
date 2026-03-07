@@ -7,12 +7,9 @@ import com.example.board.auth.commons.utils.ExceptionUtils;
 import com.example.board.auth.credential.exception.MemberActivationException;
 import com.example.board.auth.credential.repository.MemberCredentialRepository;
 import com.example.board.auth.credential.service.MemberService;
-import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
-import com.example.board.auth.credential.service.result.ActivateCredentialResult;
-import com.example.board.auth.credential.service.result.CreateCredentialResult;
-import com.example.board.auth.credential.service.result.EmailAvailabilityResult;
-import com.example.board.auth.credential.service.result.UsernameAvailabilityResult;
+import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
+import com.example.board.auth.credential.service.result.*;
 import com.example.board.auth.credential.tx.MemberCredentialTxWriter;
 import com.example.board.auth.mail.repository.EmailAuthenticationRepository;
 import lombok.RequiredArgsConstructor;
@@ -107,5 +104,18 @@ public class MemberServiceImpl implements MemberService {
             return new EmailAvailabilityResult.Unavailable("이미 사용 중인 이메일입니다.");
         }
         return new EmailAvailabilityResult.Available("사용 가능한 이메일입니다.");
+    }
+
+    @Override
+    public GetCredentialResult.Role getMemberRole(Long id) {
+        return memberCredentialRepository.findById(id)
+                .<GetCredentialResult.Role>map(credential -> new GetCredentialResult.Role.Success(credential.getRole()))
+                .orElseGet(GetCredentialResult.Role.NotFound::new);
+    }
+
+    @Override
+    @Transactional
+    public long updateLastLogin(Long id) {
+        return memberCredentialRepository.updateLastLoginAt(id);
     }
 }

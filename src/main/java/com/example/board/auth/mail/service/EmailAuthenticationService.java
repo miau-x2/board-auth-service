@@ -9,8 +9,8 @@ import com.example.board.auth.mail.result.EmailAuthenticationResult;
 import com.example.board.auth.mail.result.SaveOtpResult;
 import com.example.board.auth.mail.service.command.EmailSendCommand;
 import com.example.board.auth.mail.service.command.EmailVerifyCommand;
-import com.example.board.auth.token.OtpGenerator;
-import com.example.board.auth.token.TokenGenerator;
+import com.example.board.auth.verification.token.OtpGenerator;
+import com.example.board.auth.verification.token.SignupTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailAuthenticationService {
     private final OtpGenerator otpGenerator;
-    private final TokenGenerator tokenGenerator;
+    private final SignupTokenGenerator signupTokenGenerator;
     private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final EmailAuthenticationProperties emailAuthenticationProperties;
@@ -58,7 +58,7 @@ public class EmailAuthenticationService {
         // 검증 성공한 otp 삭제
         emailAuthenticationRepository.deleteOtp(command.email());
         // 10분간 유효한 회원 가입 토큰 발행
-        var token = tokenGenerator.generate();
+        var token = signupTokenGenerator.generate();
         log.info("이메일 인증 토큰 발급: {}", token);
         // 토큰 저장
         emailAuthenticationRepository.saveSignupToken(token, command.email());
