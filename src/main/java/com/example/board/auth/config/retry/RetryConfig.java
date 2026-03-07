@@ -1,5 +1,6 @@
 package com.example.board.auth.config.retry;
 
+import com.example.board.auth.authentication.token.exception.RedisConcurrencyFailureException;
 import com.example.board.auth.commons.exception.RetryableRemoteException;
 import com.example.board.auth.mail.exception.MailSendFailedException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,10 +37,26 @@ public class RetryConfig {
                 .maxRetries(3)
                 .delay(Duration.ofMillis(100))
                 .multiplier(2)
-                .maxDelay(Duration.ofSeconds(500))
+                .maxDelay(Duration.ofMillis(500))
                 .jitter(Duration.ofMillis(20))
                 .timeout(Duration.ofSeconds(1))
                 .includes(RetryableRemoteException.class)
+                .build();
+        var retryTemplate = new RetryTemplate(retryPolicy);
+        retryTemplate.setRetryListener(retryListener);
+        return retryTemplate;
+    }
+
+    @Bean
+    public RetryTemplate redisRetryTemplate(@Qualifier("redisRetryListener") RetryListener retryListener) {
+        var retryPolicy = RetryPolicy.builder()
+                .maxRetries(3)
+                .delay(Duration.ofMillis(20))
+                .multiplier(2)
+                .maxDelay(Duration.ofMillis(100))
+                .jitter(Duration.ofMillis(5))
+                .timeout(Duration.ofMillis(200))
+                .includes(RedisConcurrencyFailureException.class)
                 .build();
         var retryTemplate = new RetryTemplate(retryPolicy);
         retryTemplate.setRetryListener(retryListener);

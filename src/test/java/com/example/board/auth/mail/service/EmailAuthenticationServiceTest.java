@@ -7,8 +7,8 @@ import com.example.board.auth.mail.result.EmailAuthenticationResult;
 import com.example.board.auth.mail.result.SaveOtpResult;
 import com.example.board.auth.mail.service.command.EmailSendCommand;
 import com.example.board.auth.mail.service.command.EmailVerifyCommand;
-import com.example.board.auth.token.OtpGenerator;
-import com.example.board.auth.token.TokenGenerator;
+import com.example.board.auth.verification.token.OtpGenerator;
+import com.example.board.auth.verification.token.SignupTokenGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ class EmailAuthenticationServiceTest {
     @Mock
     private OtpGenerator otpGenerator;
     @Mock
-    private TokenGenerator tokenGenerator;
+    private SignupTokenGenerator signupTokenGenerator;
     @Mock
     private EmailAuthenticationRepository emailAuthenticationRepository;
     @Mock
@@ -97,7 +97,7 @@ class EmailAuthenticationServiceTest {
         var command = new EmailVerifyCommand(email, otp);
         var signupToken = "generated-token";
         when(emailAuthenticationRepository.getOtp(email)).thenReturn(otp);
-        when(tokenGenerator.generate()).thenReturn(signupToken);
+        when(signupTokenGenerator.generate()).thenReturn(signupToken);
 
         var actual = emailAuthenticationService.verifyOtp(command);
         assertThat(actual).isExactlyInstanceOf(EmailAuthenticationResult.VerifyOtp.Success.class)
@@ -108,7 +108,7 @@ class EmailAuthenticationServiceTest {
 
         verify(emailAuthenticationRepository).getOtp(email);
         verify(emailAuthenticationRepository).deleteOtp(email);
-        verify(tokenGenerator).generate();
+        verify(signupTokenGenerator).generate();
         verify(emailAuthenticationRepository).saveSignupToken(signupToken, email);
     }
 
@@ -124,7 +124,7 @@ class EmailAuthenticationServiceTest {
 
         verify(emailAuthenticationRepository).getOtp(email);
         verify(emailAuthenticationRepository, never()).deleteOtp(anyString());
-        verify(tokenGenerator, never()).generate();
+        verify(signupTokenGenerator, never()).generate();
     }
 
     @Test
@@ -139,6 +139,6 @@ class EmailAuthenticationServiceTest {
 
         verify(emailAuthenticationRepository).getOtp(email);
         verify(emailAuthenticationRepository, never()).deleteOtp(anyString());
-        verify(tokenGenerator, never()).generate();
+        verify(signupTokenGenerator, never()).generate();
     }
 }

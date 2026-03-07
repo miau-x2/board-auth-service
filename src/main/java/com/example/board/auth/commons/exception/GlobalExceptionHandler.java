@@ -1,7 +1,10 @@
 package com.example.board.auth.commons.exception;
 
+import com.example.board.auth.authentication.token.exception.RefreshTokenRemovalFailedException;
+import com.example.board.auth.authentication.token.exception.RefreshTokenRotateFailedException;
 import com.example.board.auth.commons.response.ApiCode;
 import com.example.board.auth.commons.response.ApiResponse;
+import com.example.board.auth.commons.response.AuthenticationErrorCode;
 import com.example.board.auth.commons.response.CommonErrorCode;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +88,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<Void>> handleTypeMismatch() {
         return handleError(CommonErrorCode.REQUEST_MALFORMED);
+    }
+
+    @ExceptionHandler(RefreshTokenRemovalFailedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRefreshTokenRemovalFailedException(RefreshTokenRemovalFailedException e) {
+        log.error("리프레시 토큰 삭제 실패: {}", e.getMessage(), e);
+        return handleError(CommonErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RefreshTokenRotateFailedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRefreshTokenRotateFailedException(RefreshTokenRotateFailedException e) {
+        log.error("리프레시 토큰 회전 실패: {}", e.getMessage(), e);
+        return handleError(AuthenticationErrorCode.TOKEN_REISSUE_TEMPORARILY_UNAVAILABLE);
     }
 
     @ExceptionHandler(UnhandledDataIntegrityViolationException.class)
