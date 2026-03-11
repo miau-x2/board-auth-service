@@ -3,7 +3,7 @@ package com.example.board.auth.credential.service;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.result.*;
 
-public interface MemberService {
+public interface MemberCredentialService {
     CreateCredentialResult createCredential(MemberCredentialCreateCommand command);
     ActivateCredentialResult activateCredential(Long id);
     void deleteCredential(Long id);

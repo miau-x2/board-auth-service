@@ -6,7 +6,7 @@ import com.example.board.auth.commons.utils.EmailDomainPolicy;
 import com.example.board.auth.commons.utils.ExceptionUtils;
 import com.example.board.auth.credential.exception.MemberActivationException;
 import com.example.board.auth.credential.repository.MemberCredentialRepository;
-import com.example.board.auth.credential.service.MemberService;
+import com.example.board.auth.credential.service.MemberCredentialService;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
 import com.example.board.auth.credential.service.result.*;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberServiceImpl implements MemberService {
+public class MemberCredentialServiceImpl implements MemberCredentialService {
     private final MemberCredentialRepository memberCredentialRepository;
     private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final MemberCredentialTxWriter memberCredentialTxWriter;

@@ -5,7 +5,7 @@ import com.example.board.auth.credential.entity.MemberCredential;
 import com.example.board.auth.credential.repository.MemberCredentialRepository;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
-import com.example.board.auth.credential.service.impl.MemberServiceImpl;
+import com.example.board.auth.credential.service.impl.MemberCredentialServiceImpl;
 import com.example.board.auth.credential.service.result.ActivateCredentialResult;
 import com.example.board.auth.credential.service.result.CreateCredentialResult;
 import com.example.board.auth.credential.service.result.EmailAvailabilityResult;
@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MemberServiceTest {
+class MemberCredentialServiceTest {
     @Mock
     private MemberCredentialRepository memberCredentialRepository;
     @Mock
@@ -36,7 +36,7 @@ class MemberServiceTest {
     @Mock
     private MemberCredentialTxWriter memberCredentialTxWriter;
     @InjectMocks
-    private MemberServiceImpl memberService;
+    private MemberCredentialServiceImpl memberService;
 
     @Test
     @DisplayName("회원 자격 증명 생성 - 성공")

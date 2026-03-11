@@ -16,7 +16,7 @@ import com.example.board.auth.credential.controller.dto.response.SignupEmailSend
 import com.example.board.auth.credential.controller.dto.response.SignupEmailVerifyResponse;
 import com.example.board.auth.credential.controller.dto.response.UsernameAvailabilityResponse;
 import com.example.board.auth.credential.orchestrator.MemberSignupOrchestrator;
-import com.example.board.auth.credential.service.MemberService;
+import com.example.board.auth.credential.service.MemberCredentialService;
 import com.example.board.auth.credential.service.command.MemberSignupCommand;
 import com.example.board.auth.credential.service.result.EmailAvailabilityResult;
 import com.example.board.auth.credential.service.result.SignupResult;
@@ -46,7 +46,7 @@ import static com.example.board.auth.commons.utils.ResponseUtils.successResponse
 @Validated
 public class MemberSignupController {
     private final MemberSignupOrchestrator memberSignupOrchestrator;
-    private final MemberService memberService;
+    private final MemberCredentialService memberCredentialService;
     private final MemberApiClient memberApiClient;
     private final EmailAuthenticationService emailAuthenticationService;
 
@@ -81,7 +81,7 @@ public class MemberSignupController {
             )
             @RequestParam
             String username) {
-        var result = memberService.checkUsernameAvailability(username);
+        var result = memberCredentialService.checkUsernameAvailability(username);
 
         return switch (result) {
             case UsernameAvailabilityResult.Available(var message) ->
@@ -98,7 +98,7 @@ public class MemberSignupController {
             @Email(message = "이메일 형식이 올바르지 않습니다.", groups = FormatGroup.class)
             @RequestParam
             String email) {
-        var result = memberService.checkEmailAvailability(email);
+        var result = memberCredentialService.checkEmailAvailability(email);
 
         return switch (result) {
             case EmailAvailabilityResult.Available(var message) ->

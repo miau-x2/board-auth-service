@@ -11,7 +11,7 @@ import com.example.board.auth.authentication.service.result.AuthenticatedTokenPa
 import com.example.board.auth.authentication.service.result.LoginResult;
 import com.example.board.auth.authentication.service.result.ReissueResult;
 import com.example.board.auth.authentication.token.ReissueTokensResult;
-import com.example.board.auth.credential.service.MemberService;
+import com.example.board.auth.credential.service.MemberCredentialService;
 import com.example.board.auth.credential.service.result.GetCredentialResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final MemberService memberService;
+    private final MemberCredentialService memberCredentialService;
 
     @Override
     public LoginResult login(LoginCommand command) {
@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ReissueResult reissue(ReissueCommand command) {
-        var roleResult = memberService.getMemberRole(command.memberId());
+        var roleResult = memberCredentialService.getMemberRole(command.memberId());
         return switch (roleResult) {
             case GetCredentialResult.Role.NotFound _ -> new ReissueResult.InvalidRefreshToken();
             case GetCredentialResult.Role.Success(var role) -> processReissueTokens(new ReissueTokenCommand(command.memberId(), command.refreshToken(), role));
@@ -80,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void updateLastLogin(Long id) {
         try {
-            memberService.updateLastLogin(id);
+            memberCredentialService.updateLastLogin(id);
         } catch (Exception e) {
             log.warn("회원: {}의 최종 로그인 시간 업데이트 실패: {}", id, e.getMessage(), e);
         }
