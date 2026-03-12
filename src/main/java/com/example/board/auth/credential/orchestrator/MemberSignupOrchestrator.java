@@ -8,7 +8,7 @@ import com.example.board.auth.credential.service.MemberProfileService;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.command.MemberSignupCommand;
 import com.example.board.auth.credential.service.result.*;
-import com.example.board.auth.credential.tx.MemberCredentialTxWriter;
+import com.example.board.auth.credential.service.impl.MemberCredentialTxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class MemberSignupOrchestrator {
     private final MemberCredentialService memberCredentialService;
     private final MemberProfileService memberProfileService;
-    private final MemberCredentialTxWriter memberCredentialTxWriter;
+    private final MemberCredentialTxService memberCredentialTxService;
 
     public SignupResult coordinateSignup(MemberSignupCommand command) {
         // 회원 자격 증명 생성
@@ -97,7 +97,7 @@ public class MemberSignupOrchestrator {
     private void compensateCredentialCreation(Long id) {
         // 회원 프로필 생성 실패 또는 삭제 성공 -> 보상 트랜잭션으로 회원 자격 증명 삭제
         try {
-            memberCredentialTxWriter.hardDeleteCredential(id);
+            memberCredentialTxService.hardDeleteCredential(id);
         } catch (Exception e) {
             log.error("보상 트랜잭션: 회원 자격 증명 삭제 실패: {}", id, e);
             throw new MemberCredentialCompensationFailedException(id, e);

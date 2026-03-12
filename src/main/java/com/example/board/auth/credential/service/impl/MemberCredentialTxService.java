@@ -1,4 +1,4 @@
-package com.example.board.auth.credential.tx;
+package com.example.board.auth.credential.service.impl;
 
 import com.example.board.auth.credential.entity.MemberCredential;
 import com.example.board.auth.credential.repository.MemberCredentialRepository;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MemberCredentialTxWriter {
+public class MemberCredentialTxService {
     private final MemberCredentialRepository memberCredentialRepository;
     private final PasswordEncoder passwordEncoder;
 

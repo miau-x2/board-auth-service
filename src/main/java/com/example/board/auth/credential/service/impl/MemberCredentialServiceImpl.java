@@ -10,7 +10,6 @@ import com.example.board.auth.credential.service.MemberCredentialService;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
 import com.example.board.auth.credential.service.result.*;
-import com.example.board.auth.credential.tx.MemberCredentialTxWriter;
 import com.example.board.auth.mail.repository.EmailAuthenticationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberCredentialServiceImpl implements MemberCredentialService {
     private final MemberCredentialRepository memberCredentialRepository;
     private final EmailAuthenticationRepository emailAuthenticationRepository;
-    private final MemberCredentialTxWriter memberCredentialTxWriter;
+    private final MemberCredentialTxService memberCredentialTxService;
 
     @Override
     public CreateCredentialResult createCredential(MemberCredentialCreateCommand command) {
@@ -51,7 +50,7 @@ public class MemberCredentialServiceImpl implements MemberCredentialService {
         }
 
         try {
-            var id = memberCredentialTxWriter.save(new MemberCredentialSaveCommand(command.username(), command.password(), command.email()));
+            var id = memberCredentialTxService.save(new MemberCredentialSaveCommand(command.username(), command.password(), command.email()));
             return new CreateCredentialResult.Success(id);
         } catch (DataIntegrityViolationException e) {
             var constraintName = ExceptionUtils.findConstraintName(e);

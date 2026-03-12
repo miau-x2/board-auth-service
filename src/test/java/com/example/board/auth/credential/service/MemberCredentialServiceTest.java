@@ -6,11 +6,11 @@ import com.example.board.auth.credential.repository.MemberCredentialRepository;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.command.MemberCredentialSaveCommand;
 import com.example.board.auth.credential.service.impl.MemberCredentialServiceImpl;
+import com.example.board.auth.credential.service.impl.MemberCredentialTxService;
 import com.example.board.auth.credential.service.result.ActivateCredentialResult;
 import com.example.board.auth.credential.service.result.CreateCredentialResult;
 import com.example.board.auth.credential.service.result.EmailAvailabilityResult;
 import com.example.board.auth.credential.service.result.UsernameAvailabilityResult;
-import com.example.board.auth.credential.tx.MemberCredentialTxWriter;
 import com.example.board.auth.mail.repository.EmailAuthenticationRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class MemberCredentialServiceTest {
     @Mock
     private EmailAuthenticationRepository emailAuthenticationRepository;
     @Mock
-    private MemberCredentialTxWriter memberCredentialTxWriter;
+    private MemberCredentialTxService memberCredentialTxService;
     @InjectMocks
     private MemberCredentialServiceImpl memberService;
 
@@ -47,7 +47,7 @@ class MemberCredentialServiceTest {
         var createCommand = new MemberCredentialCreateCommand("test", "1234", email, token);
         var saveCommand = new MemberCredentialSaveCommand(createCommand.username(), createCommand.password(), createCommand.email());
         when(emailAuthenticationRepository.useSignupToken(token)).thenReturn(email);
-        when(memberCredentialTxWriter.save(saveCommand)).thenReturn(id);
+        when(memberCredentialTxService.save(saveCommand)).thenReturn(id);
 
         var actual = memberService.createCredential(createCommand);
         assertThat(actual)
@@ -58,7 +58,7 @@ class MemberCredentialServiceTest {
                 });
 
         verify(emailAuthenticationRepository).useSignupToken(token);
-        verify(memberCredentialTxWriter).save(saveCommand);
+        verify(memberCredentialTxService).save(saveCommand);
     }
 
     @Test
@@ -73,7 +73,7 @@ class MemberCredentialServiceTest {
                 .isExactlyInstanceOf(CreateCredentialResult.EmailDomainNotAllowed.class);
 
         verify(emailAuthenticationRepository, never()).useSignupToken(token);
-        verify(memberCredentialTxWriter, never()).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService, never()).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -89,7 +89,7 @@ class MemberCredentialServiceTest {
                 .isExactlyInstanceOf(CreateCredentialResult.TokenExpired.class);
 
         verify(emailAuthenticationRepository).useSignupToken(token);
-        verify(memberCredentialTxWriter, never()).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService, never()).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -105,7 +105,7 @@ class MemberCredentialServiceTest {
                 .isExactlyInstanceOf(CreateCredentialResult.TokenInvalid.class);
 
         verify(emailAuthenticationRepository).useSignupToken(token);
-        verify(memberCredentialTxWriter, never()).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService, never()).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -124,7 +124,7 @@ class MemberCredentialServiceTest {
         verify(emailAuthenticationRepository).useSignupToken(token);
         verify(memberCredentialRepository).existsByUsername(createCommand.username());
         verify(memberCredentialRepository, never()).existsByEmail(createCommand.email());
-        verify(memberCredentialTxWriter, never()).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService, never()).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -138,7 +138,7 @@ class MemberCredentialServiceTest {
         when(memberCredentialRepository.existsByUsername(createCommand.username())).thenReturn(false);
         when(memberCredentialRepository.existsByEmail(createCommand.email())).thenReturn(false);
         var uniqueConstraintViolationException = createDataIntegrityViolationException(DatabaseConstraintName.MemberCredential.USERNAME);
-        when(memberCredentialTxWriter.save(saveCommand)).thenThrow(uniqueConstraintViolationException);
+        when(memberCredentialTxService.save(saveCommand)).thenThrow(uniqueConstraintViolationException);
 
         var actual = memberService.createCredential(createCommand);
         assertThat(actual)
@@ -147,7 +147,7 @@ class MemberCredentialServiceTest {
         verify(emailAuthenticationRepository).useSignupToken(token);
         verify(memberCredentialRepository).existsByUsername(createCommand.username());
         verify(memberCredentialRepository).existsByEmail(createCommand.email());
-        verify(memberCredentialTxWriter).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -167,7 +167,7 @@ class MemberCredentialServiceTest {
         verify(emailAuthenticationRepository).useSignupToken(token);
         verify(memberCredentialRepository).existsByUsername(createCommand.username());
         verify(memberCredentialRepository).existsByEmail(createCommand.email());
-        verify(memberCredentialTxWriter, never()).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService, never()).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -181,7 +181,7 @@ class MemberCredentialServiceTest {
         when(memberCredentialRepository.existsByUsername(createCommand.username())).thenReturn(false);
         when(memberCredentialRepository.existsByEmail(createCommand.email())).thenReturn(false);
         var uniqueConstraintViolationException = createDataIntegrityViolationException(DatabaseConstraintName.MemberCredential.EMAIL);
-        when(memberCredentialTxWriter.save(saveCommand)).thenThrow(uniqueConstraintViolationException);
+        when(memberCredentialTxService.save(saveCommand)).thenThrow(uniqueConstraintViolationException);
 
         var actual = memberService.createCredential(createCommand);
         assertThat(actual)
@@ -190,7 +190,7 @@ class MemberCredentialServiceTest {
         verify(emailAuthenticationRepository).useSignupToken(token);
         verify(memberCredentialRepository).existsByUsername(createCommand.username());
         verify(memberCredentialRepository).existsByEmail(createCommand.email());
-        verify(memberCredentialTxWriter).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test
@@ -205,7 +205,7 @@ class MemberCredentialServiceTest {
         when(memberCredentialRepository.existsByEmail(createCommand.email())).thenReturn(false);
         var exception = createDataIntegrityViolationException("test");
 
-        when(memberCredentialTxWriter.save(saveCommand)).thenThrow(exception);
+        when(memberCredentialTxService.save(saveCommand)).thenThrow(exception);
 
         assertThatThrownBy(() -> memberService.createCredential(createCommand))
                 .hasCauseInstanceOf(DataIntegrityViolationException.class);
@@ -213,7 +213,7 @@ class MemberCredentialServiceTest {
         verify(emailAuthenticationRepository).useSignupToken(token);
         verify(memberCredentialRepository).existsByUsername(createCommand.username());
         verify(memberCredentialRepository).existsByEmail(createCommand.email());
-        verify(memberCredentialTxWriter).save(any(MemberCredentialSaveCommand.class));
+        verify(memberCredentialTxService).save(any(MemberCredentialSaveCommand.class));
     }
 
     @Test

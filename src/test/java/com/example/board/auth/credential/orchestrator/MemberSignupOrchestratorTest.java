@@ -12,7 +12,7 @@ import com.example.board.auth.credential.service.result.CreateCredentialResult;
 import com.example.board.auth.credential.service.result.CreateProfileResult;
 import com.example.board.auth.credential.service.result.DeleteProfileResult;
 import com.example.board.auth.credential.service.result.SignupResult;
-import com.example.board.auth.credential.tx.MemberCredentialTxWriter;
+import com.example.board.auth.credential.service.impl.MemberCredentialTxService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,12 +36,12 @@ class MemberSignupOrchestratorTest {
     @Mock
     private MemberProfileService memberProfileService;
     @Mock
-    private MemberCredentialTxWriter memberCredentialTxWriter;
+    private MemberCredentialTxService memberCredentialTxService;
     private MemberSignupOrchestrator memberSignupOrchestrator;
 
     @BeforeEach
     void setUp() {
-        memberSignupOrchestrator = new MemberSignupOrchestrator(memberCredentialService, memberCredentialTxWriter, memberProfileService);
+        memberSignupOrchestrator = new MemberSignupOrchestrator(memberCredentialService, memberCredentialTxService, memberProfileService);
     }
 
     @Test
@@ -170,7 +170,7 @@ class MemberSignupOrchestratorTest {
         assertThat(actual).isExactlyInstanceOf(SignupResult.UnexpectedValidationError.class);
         verify(memberCredentialService).createCredential(credentialCreateCommand);
         verify(memberProfileService).createProfile(id, profileCreateRequest);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
     }
 
@@ -192,7 +192,7 @@ class MemberSignupOrchestratorTest {
         assertThat(actual).isExactlyInstanceOf(SignupResult.UsernameAlreadyExists.class);
         verify(memberCredentialService).createCredential(credentialCreateCommand);
         verify(memberProfileService).createProfile(id, profileCreateRequest);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
     }
 
@@ -214,7 +214,7 @@ class MemberSignupOrchestratorTest {
         assertThat(actual).isExactlyInstanceOf(SignupResult.NicknameAlreadyExists.class);
         verify(memberCredentialService).createCredential(credentialCreateCommand);
         verify(memberProfileService).createProfile(id, profileCreateRequest);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
     }
 
@@ -236,7 +236,7 @@ class MemberSignupOrchestratorTest {
         assertThat(actual).isExactlyInstanceOf(SignupResult.UnexpectedConflictError.class);
         verify(memberCredentialService).createCredential(credentialCreateCommand);
         verify(memberProfileService).createProfile(id, profileCreateRequest);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
     }
 
@@ -261,7 +261,7 @@ class MemberSignupOrchestratorTest {
         verify(memberCredentialService).createCredential(credentialCreateCommand);
         verify(memberProfileService).createProfile(id, profileCreateRequest);
         verify(memberProfileService).deleteProfile(id);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
     }
 
@@ -289,7 +289,7 @@ class MemberSignupOrchestratorTest {
         verify(memberProfileService).createProfile(id, profileCreateRequest);
         verify(memberCredentialService).activateCredential(id);
         verify(memberProfileService).deleteProfile(id);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
     }
 
     @Test
@@ -316,7 +316,7 @@ class MemberSignupOrchestratorTest {
         verify(memberProfileService).createProfile(id, profileCreateRequest);
         verify(memberCredentialService).activateCredential(id);
         verify(memberProfileService).deleteProfile(id);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
     }
 
     @Test
@@ -340,7 +340,7 @@ class MemberSignupOrchestratorTest {
         verify(memberCredentialService).createCredential(credentialCreateCommand);
         verify(memberProfileService).createProfile(id, profileCreateRequest);
         verify(memberProfileService).deleteProfile(id);
-        verify(memberCredentialTxWriter, never()).hardDeleteCredential(id);
+        verify(memberCredentialTxService, never()).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
     }
 
@@ -357,13 +357,13 @@ class MemberSignupOrchestratorTest {
         when(memberProfileService.createProfile(id, profileCreateRequest))
                 .thenReturn(new CreateProfileResult.UnexpectedValidationError());
         doThrow(new RuntimeException("database-error"))
-                .when(memberCredentialTxWriter).hardDeleteCredential(id);
+                .when(memberCredentialTxService).hardDeleteCredential(id);
 
         assertThatThrownBy(() -> memberSignupOrchestrator.coordinateSignup(signupCommand))
                 .isExactlyInstanceOf(MemberCredentialCompensationFailedException.class);
 
         verify(memberProfileService).createProfile(id, profileCreateRequest);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
         verify(memberCredentialService, never()).activateCredential(id);
         verify(memberProfileService, never()).deleteProfile(id);
     }
@@ -383,14 +383,14 @@ class MemberSignupOrchestratorTest {
         when(memberProfileService.deleteProfile(id))
                 .thenReturn(new DeleteProfileResult.Success());
         doThrow(new RuntimeException("database-error"))
-                .when(memberCredentialTxWriter).hardDeleteCredential(id);
+                .when(memberCredentialTxService).hardDeleteCredential(id);
 
         assertThatThrownBy(() -> memberSignupOrchestrator.coordinateSignup(signupCommand))
                 .isExactlyInstanceOf(MemberCredentialCompensationFailedException.class);
 
         verify(memberProfileService).createProfile(id, profileCreateRequest);
         verify(memberProfileService).deleteProfile(id);
-        verify(memberCredentialTxWriter).hardDeleteCredential(id);
+        verify(memberCredentialTxService).hardDeleteCredential(id);
     }
 
     private MemberSignupCommand createSignupCommand() {
