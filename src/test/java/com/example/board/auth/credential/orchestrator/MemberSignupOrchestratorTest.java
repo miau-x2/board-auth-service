@@ -7,12 +7,8 @@ import com.example.board.auth.credential.service.MemberCredentialService;
 import com.example.board.auth.credential.service.MemberProfileService;
 import com.example.board.auth.credential.service.command.MemberCredentialCreateCommand;
 import com.example.board.auth.credential.service.command.MemberSignupCommand;
-import com.example.board.auth.credential.service.result.ActivateCredentialResult;
-import com.example.board.auth.credential.service.result.CreateCredentialResult;
-import com.example.board.auth.credential.service.result.CreateProfileResult;
-import com.example.board.auth.credential.service.result.DeleteProfileResult;
-import com.example.board.auth.credential.service.result.SignupResult;
 import com.example.board.auth.credential.service.impl.MemberCredentialTxService;
+import com.example.board.auth.credential.service.result.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,12 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MemberSignupOrchestratorTest {
@@ -41,7 +32,7 @@ class MemberSignupOrchestratorTest {
 
     @BeforeEach
     void setUp() {
-        memberSignupOrchestrator = new MemberSignupOrchestrator(memberCredentialService, memberCredentialTxService, memberProfileService);
+        memberSignupOrchestrator = new MemberSignupOrchestrator(memberCredentialService, memberProfileService, memberCredentialTxService);
     }
 
     @Test
